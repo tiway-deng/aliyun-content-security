@@ -21,6 +21,15 @@ class AliyunGreen
 
     private $connectTimeout;
 
+    const TYPE_TEXT = 'text';
+    const TYPE_IMAGE = 'image';
+    const TYPE_FILE = 'file';
+    const TYPE_VIDEO = 'video';
+    const TYPE_VOICE = 'voice';
+
+    const TYPE_IMAGE_DEFAULT = array("porn", "terrorism");
+    const TYPe_TEXT_DEFAULT = array("antispam");
+
     /**
      * AliyunGreen constructor.
      * @param null $accessKeyId
@@ -50,7 +59,6 @@ class AliyunGreen
         $this->__initialization();
     }
 
-
     /**
      * 初始化
      * @throws ClientException
@@ -69,7 +77,6 @@ class AliyunGreen
         }
     }
 
-
     /**
      * 提交语音检测任务
      * @param $content
@@ -83,7 +90,7 @@ class AliyunGreen
         $live = false,
         $offline = false
     ) {
-        $tasks = $this->getTask($url, 'video');
+        $tasks = $this->getTask($url, self::TYPE_VOICE);
         $body = array(
             'tasks' => $tasks,
             'scenes' => $scenes,
@@ -92,29 +99,8 @@ class AliyunGreen
             'seed' => $seed,
             'callback' => $callback,
         );
-        return $this->response('/green/voice/asyncscan', $body);
+        return $this->response('/green/' . self::TYPE_VOICE . '/asyncscan', $body);
     }
-
-    /**
-     * 查询音频异步检测结果
-     * @param $body //JSON数组 要查询的taskId列表。最大长度不超过100。
-     */
-    public function voiceResults($body)
-    {
-        $body = $this->generateArray($body);
-        return $this->response('/green/voice/results', $body);
-    }
-
-    /**
-     * 停止检测
-     * @param $body //JSON数组 要查询的taskId列表。最大长度不超过100。
-     */
-    public function voiceCancelScan($body)
-    {
-        $body = $this->generateArray($body);
-        return $this->response('/green/voice/cancelscan', $body);
-    }
-
 
     /**
      * @param $url //提交文件检测任务
@@ -126,7 +112,7 @@ class AliyunGreen
      */
     public function fileAsyncScan($url, $textScenes = null, $imageScenes = null, $callback = null, $seed = null)
     {
-        $tasks = $this->getTask($url, 'file');
+        $tasks = $this->getTask($url, self::TYPE_FILE);
         $body = array(
             'tasks' => $tasks,
             'callback' => $callback,
@@ -138,39 +124,7 @@ class AliyunGreen
         if (empty($textScenes)) {
             $body['imageScenes'] = array("porn", "terrorism");
         }
-        return $this->response('file/asyncscan', $body);
-    }
-
-    /**
-     * 提交文件检测任务后，调用本接口查询检测结果。
-     * @param $body
-     * @return \AlibabaCloud\Client\Result\Result|array
-     */
-    public function fileResults($body)
-    {
-        $body = $this->generateArray($body);
-        return $this->response('/green/file/results', $body);
-    }
-
-
-    /**
-     * 图片同步检测
-     * @param $url ////指定检测对象，JSON数组中的每个元素是一个图片检测任务结构体（image表）。最多支持10个元素，即对10张图片进行检测。
-     * @param string[] $scenes //默认：porn：图片智能鉴黄,terrorism：暴恐涉政识别等等。
-     * @param array $extras //额外调用参数。
-     * @return \AlibabaCloud\Client\Result\Result|array
-     */
-    public function imageScan($url, $scenes = array("porn", "terrorism"), $extras = array())
-    {
-        $tasks = $this->getTask($url, 'img');
-        $body = array(
-            'tasks' => $tasks,
-            'scenes' => array("porn", "terrorism"),
-        );
-        if (!empty($extras)) {
-            $body['extras'] = $extras;
-        }
-        return $this->response('/green/image/scan', $body);
+        return $this->response('/green/' . self::TYPE_FILE . '/asyncscan', $body);
     }
 
     /**
@@ -189,7 +143,7 @@ class AliyunGreen
         $callback = null,
         $extras = array()
     ) {
-        $tasks = $this->getTask($url, 'img');
+        $tasks = $this->getTask($url, self::TYPE_IMAGE);
 
         $body = array(
             'tasks' => $tasks,
@@ -200,25 +154,8 @@ class AliyunGreen
         if (!empty($extras)) {
             $body['extras'] = $extras;
         }
-        return $this->response('/green/image/asyncscan', $body);
+        return $this->response('/green/' . self::TYPE_IMAGE . '/asyncscan', $body);
     }
-
-
-    /**
-     * 文本垃圾内容检测
-     * @param $content
-     * @return \AlibabaCloud\Client\Result\Result|array
-     */
-    public function textScan($content)
-    {
-        $tasks = $this->getTask($content, 'text');
-        $body = array(
-            'tasks' => $tasks,
-            'scenes' => array("antispam")
-        );
-        return $this->response('/green/text/scan', $body);
-    }
-
 
     /**
      * 视频同步检测:视频同步检测接口只支持通过上传视频截帧图片的方式进行检测。如果您想通过上传视频URL的方式进行检测，使用异步检测接口。
@@ -243,7 +180,7 @@ class AliyunGreen
             'tasks' => $tasks,
             'scenes' => $scenes,
         );
-        return $this->response('/green/video/syncscan', $body);
+        return $this->response('/green/' . self::TYPE_VIDEO . '/syncscan', $body);
     }
 
     /**
@@ -276,30 +213,8 @@ class AliyunGreen
             'audioScenes' => $audioScenes,
             'callback' => $callback,
         );
-        return $this->response('/green/video/asyncscan', $body);
+        return $this->response('/green/' . self::TYPE_VIDEO . '/asyncscan', $body);
     }
-
-
-    /**
-     * 查询视频异步检测结果
-     * @param $body //JSON数组 要查询的taskId列表。最大长度不超过100。
-     */
-    public function videoResults($body)
-    {
-        $body = $this->generateArray($body);
-        return $this->response('/green/video/results', $body);
-    }
-
-    /**
-     * 停止检测
-     * @param $body //JSON数组 要查询的taskId列表。最大长度不超过100。
-     */
-    public function videoCancelScan($body)
-    {
-        $body = $this->generateArray($body);
-        return $this->response('/green/video/cancelscan', $body);
-    }
-
 
     /**
      * 请求api
@@ -359,19 +274,19 @@ class AliyunGreen
      * @param string $type
      * @return array
      */
-    public function getTask($data, $type = 'img')
+    public function getTask($data, $type = self::TYPE_IMAGE)
     {
         $tasks = [];
         $urls = $this->generateArray($data);
         foreach ($urls as $k => $v) {
             $arr = array('dataId' => uniqid());
-            if ($type == 'text') {
+            if ($type == self::TYPE_TEXT) {
                 $arr['content'] = $v;
             } else {
-                if (in_array($type, array('img', 'file'))) {
+                if (in_array($type, array(self::TYPE_IMAGE, self::TYPE_FILE, self::TYPE_VOICE))) {
                     $arr['url'] = $v;
                 } else {
-                    if ($type == 'video') {
+                    if ($type == self::TYPE_VIDEO) {
                         $arr['url'] = $v;
                         $arr['interval'] = 1;
                         $arr['maxFrames'] = 200;
@@ -381,6 +296,61 @@ class AliyunGreen
             $tasks[] = $arr;
         }
         return $tasks;
+    }
+
+    /**
+     * @param $body
+     * @param string $type
+     * @return \AlibabaCloud\Client\Result\Result|array
+     */
+    public function getResults($body, $type = self::TYPE_IMAGE)
+    {
+        $body = $this->generateArray($body);
+        return $this->response('/green/' . $type . '/results', $body);
+    }
+
+    /**
+     * 停止检测
+     * @param $body //JSON数组 要查询的taskId列表。最大长度不超过100。
+     * @param $body
+     * @param string $type
+     * @return \AlibabaCloud\Client\Result\Result|array]
+     */
+    public function cancelScan($body, $type = self::TYPE_VIDEO)
+    {
+        $body = $this->generateArray($body);
+        return $this->response('/green/' . $type . '/cancelscan', $body);
+    }
+
+    /**
+     * 图片同步检测
+     * @param $url ////指定检测对象，JSON数组中的每个元素是一个图片检测任务结构体（image表）。最多支持10个元素，即对10张图片进行检测。
+     * @param string[] $scenes
+     * image video 指定检测场景。取值：
+     * porn：图片智能鉴黄
+     * terrorism：图片暴恐涉政
+     * ad：图文违规
+     * qrcode：图片二维码
+     * live：图片不良场景
+     * logo：图片logo
+     * text voice，取值：antispam
+     * @param array $extras //额外调用参数。
+     * @return \AlibabaCloud\Client\Result\Result|array
+     *
+     * example：
+     * scan('https:xxx.jpb',self::TYPE_IMAGE,['porn','terrorism','logo'])
+     */
+    public function scan($url, $type = self::TYPE_IMAGE, $scenes = self::TYPE_IMAGE_DEFAULT, $extras = array())
+    {
+        $tasks = $this->getTask($url, $type);
+        $body = array(
+            'tasks' => $tasks,
+            'scenes' => $scenes,
+        );
+        if (!empty($extras)) {
+            $body['extras'] = $extras;
+        }
+        return $this->response('/green/' . $type . '/scan', $body);
     }
 
 }

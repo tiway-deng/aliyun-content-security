@@ -29,15 +29,16 @@ $urls = [
             'https://jialai-dev.oss-cn-hangzhou.aliyuncs.com/default_avatar/13.jpg',
             'https://jialai-dev.oss-cn-hangzhou.aliyuncs.com/circle/2020-12-09/64516872-6091-4F92-811F-8AF297E9FE72_400×400.png'
         ];
-$msg = $aliyun->imageScan($urls);
+$msg = $aliyun->scan($urls);
 
 ###### 检查结果 ######
 $body = [
             'fdd25f95-4892-4d6b-aca9-7939bc6e9baa-1486198766695',
             'fdd25f95-4892-4d6b-aca9-7939bc6e9baa-1486198766695'
         ];
-$aliyun->getResults($body,AliyunGreen::TYPE_IAMGE);
-var_dump($msg);
+$urls = 'https://jialai-dev.oss-cn-hangzhou.aliyuncs.com/default_avatar/13.jpg';
+
+$msg = $aliyun->scan($urls,AliyunGreen::TYPE_IMAGE,AliyunGreen::TYPE_IMAGE_DEFAULT);
 
 
 
