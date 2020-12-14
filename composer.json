@@ -1,0 +1,20 @@
+{
+  "name": "tiway/aliyun-content-security",
+  "description": "阿里云内容安全",
+  "authors": [
+    {
+      "name": "tiway",
+      "email": "501620409@qq.com"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "Tiway\\ContentSecurity\\": "src/"
+    }
+  },
+  "require": {
+    "php": ">=5.3.0",
+    "alibabacloud/sdk": "^1.5"
+  }
+
+}
