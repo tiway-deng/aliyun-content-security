@@ -21,12 +21,14 @@ class AliyunGreen
 
     private $connectTimeout;
 
+    //检测类型
     const TYPE_TEXT = 'text';
     const TYPE_IMAGE = 'image';
     const TYPE_FILE = 'file';
     const TYPE_VIDEO = 'video';
     const TYPE_VOICE = 'voice';
 
+    //常用默认检测类型
     const TYPE_IMAGE_DEFAULT = array("porn", "terrorism");
     const TYPe_TEXT_DEFAULT = array("antispam");
 
@@ -203,7 +205,7 @@ class AliyunGreen
         $live = false,
         $offline = false
     ) {
-        $tasks = $this->getTask($url, 'video');
+        $tasks = $this->getTask($url, self::TYPE_VIDEO);
         $body = array(
             'tasks' => $tasks,
             'scenes' => $scenes,
@@ -352,5 +354,7 @@ class AliyunGreen
         }
         return $this->response('/green/' . $type . '/scan', $body);
     }
+
+
 
 }
