@@ -355,6 +355,9 @@ class AliyunGreen
         return $this->response('/green/' . $type . '/scan', $body);
     }
 
-
-
+    public function checksum($uid,$seed,$content ){
+        $str = $uid .$seed .$content;
+        return hash("sha256", $str);
+    }
+    
 }
