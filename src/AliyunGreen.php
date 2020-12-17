@@ -219,6 +219,33 @@ class AliyunGreen
     }
 
     /**
+     * 视频自定义截帧（不支持语音）
+     * 贵在相对实惠
+     * @param $urls
+     * @param array $scenes
+     * @param null $seed
+     * @param null $callback
+     * @return \AlibabaCloud\Client\Result\Result|array
+     */
+    public function videoFramesAsyncScan(
+        $urls,
+        $scenes = array("porn", "terrorism"),
+        $seed = null,
+        $callback = null
+    ) {
+        $tasks = [];
+        $task = $this->getFrames($urls);
+        array_push($tasks,$task);
+        $body = array(
+            'tasks' => $tasks,
+            'scenes' => $scenes,
+            'seed' => $seed,
+            'callback' => $callback,
+        );
+        return $this->response('/green/' . self::TYPE_VIDEO . '/asyncscan', $body);
+    }
+
+    /**
      * 请求api
      * @param $action
      * @param $body
@@ -274,9 +301,11 @@ class AliyunGreen
      * 元素结构体
      * @param $data
      * @param string $type
+     * @param integer $interval
+     * @param integer $interval
      * @return array
      */
-    public function getTask($data, $type = self::TYPE_IMAGE)
+    public function getTask($data, $type = self::TYPE_IMAGE, $interval = null)
     {
         $tasks = [];
         $urls = $this->generateArray($data);
@@ -285,14 +314,46 @@ class AliyunGreen
             if ($type == self::TYPE_TEXT) {
                 $arr['content'] = $v;
             } else {
-                if (in_array($type, array(self::TYPE_IMAGE, self::TYPE_FILE, self::TYPE_VOICE))) {
-                    $arr['url'] = $v;
-                } else {
-                    if ($type == self::TYPE_VIDEO) {
-                        $arr['url'] = $v;
-                        $arr['interval'] = 1;
-                        $arr['maxFrames'] = 200;
-                    }
+                $arr['url'] = $v;
+                if ($interval) {
+                    $arr['interval'] = $interval;
+                    $arr['maxFrames'] = 200;
+                }
+            }
+            $tasks[] = $arr;
+        }
+        return $tasks;
+    }
+
+    public function getFrames($urls)
+    {
+        $frames = [];
+        foreach ($urls as $k => $v) {
+            $frames[] = [
+                'offset' => $k,
+                'url' => $v
+            ];
+        }
+
+        return [
+            'dataId' => uniqid(),
+            'frames' => $frames
+        ];
+    }
+
+    public function getVideoTask($data, $type = self::TYPE_IMAGE, $interval = null)
+    {
+        $tasks = [];
+        $urls = $this->generateArray($data);
+        foreach ($urls as $k => $v) {
+            $arr = array('dataId' => uniqid());
+            if ($type == self::TYPE_TEXT) {
+                $arr['content'] = $v;
+            } else {
+                $arr['url'] = $v;
+                if ($interval) {
+                    $arr['interval'] = $interval;
+                    $arr['maxFrames'] = 200;
                 }
             }
             $tasks[] = $arr;
@@ -355,9 +416,10 @@ class AliyunGreen
         return $this->response('/green/' . $type . '/scan', $body);
     }
 
-    public function checksum($uid,$seed,$content ){
-        $str = $uid .$seed .$content;
+    public function checksum($uid, $seed, $content)
+    {
+        $str = $uid . $seed . $content;
         return hash("sha256", $str);
     }
-    
+
 }
