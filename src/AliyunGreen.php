@@ -189,6 +189,7 @@ class AliyunGreen
      * 视频异步检测:
      * @param $url
      * @param string[] $scenes //默认：porn：智能鉴黄,terrorism：暴恐涉政识别等等。
+     * @param int $interval
      * @param null $seed //随机字符串，该值用于回调通知请求中的签名。当使用callback时，该字段必须提供。
      * @param null $callback //异步检测结果回调通知您的URL，支持HTTP/HTTPS。该字段为空时，您必须定时检索检测结果。
      * @param array $audioScenes //选择一个或多个语音检测场景，在检测视频中图像的同时，对视频中语音进行检测
@@ -199,13 +200,14 @@ class AliyunGreen
     public function videoAsyncScan(
         $url,
         $scenes = array("porn", "terrorism"),
+        $interval = 5,
         $seed = null,
         $callback = null,
         $audioScenes = array(),
         $live = false,
         $offline = false
     ) {
-        $tasks = $this->getTask($url, self::TYPE_VIDEO);
+        $tasks = $this->getTask($url, self::TYPE_VIDEO, $interval);
         $body = array(
             'tasks' => $tasks,
             'scenes' => $scenes,
@@ -235,7 +237,7 @@ class AliyunGreen
     ) {
         $tasks = [];
         $task = $this->getFrames($urls);
-        array_push($tasks,$task);
+        array_push($tasks, $task);
         $body = array(
             'tasks' => $tasks,
             'scenes' => $scenes,
