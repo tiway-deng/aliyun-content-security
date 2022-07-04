@@ -302,10 +302,9 @@ class AliyunGreen
      * @param $data
      * @param string $type
      * @param integer $interval
-     * @param integer $interval
      * @return array
      */
-    public function getTask($data, $type = self::TYPE_IMAGE, $interval = null)
+    public function getTask($data, $type = self::TYPE_IMAGE, $interval = 1)
     {
         $tasks = [];
         $urls = $this->generateArray($data);
