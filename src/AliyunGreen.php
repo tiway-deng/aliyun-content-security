@@ -30,7 +30,6 @@ class AliyunGreen
 
     //常用默认检测类型
     const TYPE_IMAGE_DEFAULT = array("porn", "terrorism");
-    const TYPe_TEXT_DEFAULT = array("antispam");
 
     /**
      * AliyunGreen constructor.
@@ -306,7 +305,7 @@ class AliyunGreen
      * @param integer $interval
      * @return array
      */
-    public function getTask($data, $type = self::TYPE_IMAGE, $interval = 1)
+    public function getTask($data, $type = self::TYPE_IMAGE, $interval = null)
     {
         $tasks = [];
         $urls = $this->generateArray($data);
@@ -342,25 +341,6 @@ class AliyunGreen
         ];
     }
 
-    public function getVideoTask($data, $type = self::TYPE_IMAGE, $interval = null)
-    {
-        $tasks = [];
-        $urls = $this->generateArray($data);
-        foreach ($urls as $k => $v) {
-            $arr = array('dataId' => uniqid());
-            if ($type == self::TYPE_TEXT) {
-                $arr['content'] = $v;
-            } else {
-                $arr['url'] = $v;
-                if ($interval) {
-                    $arr['interval'] = $interval;
-                    $arr['maxFrames'] = 200;
-                }
-            }
-            $tasks[] = $arr;
-        }
-        return $tasks;
-    }
 
     /**
      * @param $body
